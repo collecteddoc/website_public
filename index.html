@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thermal Printer Receipt Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <div>
+        <h1>Generate Thermal Receipt</h1>
+        <button onclick="generateReceipt()">Generate Receipt PDF</button>
+    </div>
+
+    <script>
+        function generateReceipt() {
+            const { jsPDF } = window.jspdf;
+            
+            // Create new jsPDF instance with custom thermal paper size (80mm x variable length)
+            const doc = new jsPDF('p', 'mm', [80, 297]);  // 80mm width, 297mm height (A4 size to accommodate content)
+
+            // Set font and size for the receipt content
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(12);
+
+            // Add Receipt Header
+            doc.text("Store Name: My Awesome Store", 10, 10);
+            doc.text("Address: 1234 Main St, City, Country", 10, 20);
+            doc.text("Phone: +123456789", 10, 30);
+            doc.text("================================", 10, 40);
+
+            // Add items list
+            const items = [
+                { name: "Item 1", qty: 2, price: 10.0, total: 20.0 },
+                { name: "Item 2", qty: 1, price: 15.0, total: 15.0 },
+                { name: "Item 3", qty: 3, price: 5.0, total: 15.0 },
+            ];
+
+            let yPosition = 50; // Start position for items
+
+            // Loop through items and print them
+            items.forEach(item => {
+                doc.text(item.name, 10, yPosition);
+                doc.text("Qty: " + item.qty, 50, yPosition);
+                doc.text("Price: $" + item.price.toFixed(2), 80, yPosition);
+                doc.text("Total: $" + item.total.toFixed(2), 120, yPosition);
+                yPosition += 10;
+            });
+
+            // Add total amount
+            const totalAmount = items.reduce((acc, item) => acc + item.total, 0);
+            doc.text("================================", 10, yPosition + 10);
+            doc.text("Total: $" + totalAmount.toFixed(2), 10, yPosition + 20);
+
+            // Footer with thanks message
+            doc.text("Thank you for shopping with us!", 10, yPosition + 30);
+            doc.text("================================", 10, yPosition + 40);
+
+            // Save the document (or it could be printed directly)
+            doc.save("thermal_receipt.pdf");
+        }
+    </script>
+
+</body>
+</html>
